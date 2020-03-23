@@ -6,6 +6,26 @@ pragma solidity ^0.4.17;
 // 4. return or distribute money to winner
 // "bet title", "bet description", "bet logic", "1584587837", "1584587838", "yes", "no", "10"
 
+contract PropositionFactory {
+    address[] public deployedPropositions;
+    
+    function createProposition(string title, string description, string logic, uint enterDeadline, 
+                uint resolutionTime, string option1, string option2, uint minimum) public {
+        
+        // pass in the creator when created
+        address propositionAddress = new Proposition(title, description, logic, enterDeadline, 
+        resolutionTime, option1, option2, minimum, msg.sender);
+        
+        deployedPropositions.push(propositionAddress);
+    }
+    
+    // view: no data modified
+    function getDeployedPropositions() public view returns (address[]) {
+        return deployedPropositions;
+    }
+}
+
+
 contract Proposition {
     
     struct Bet {
@@ -38,8 +58,8 @@ contract Proposition {
     }
     
     constructor(string title, string description, string logic, uint enterDeadline, 
-                uint resolutionTime, string option1, string option2, uint minimum) public {
-        creator = msg.sender;
+                uint resolutionTime, string option1, string option2, uint minimum, address initiator) public {
+        creator = initiator;
         options.push(option1);
         options.push(option2);
         bet = Bet({
