@@ -1,0 +1,26 @@
+{
+  "name": "bitbet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MJeremy2017/bitbet.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MJeremy2017/bitbet/issues"
+  },
+  "homepage": "https://github.com/MJeremy2017/bitbet#readme",
+  "dependencies": {
+    "fs-extra": "^9.0.0",
+    "ganache-cli": "^6.9.1",
+    "mocha": "^7.1.1",
+    "solc": "^0.4.25",
+    "web3": "^1.0.0-beta.35"
+  }
+}
