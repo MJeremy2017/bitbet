@@ -4,21 +4,21 @@ pragma solidity ^0.4.17;
 // 2. enter a bet
 // 3. end a bet
 // 4. return or distribute money to winner
-// "bet title", "bet description", "bet logic", "1584587837", "1584587838", "yes", "no", "10"
+// "Is Peter going to win the competition?", "some description", "some logic", "1585110900", "1585647406", "yes", "no", "10"
 
 contract PropositionFactory {
     address[] public deployedPropositions;
-    
-    function createProposition(string title, string description, string logic, uint enterDeadline, 
-                uint resolutionTime, string option1, string option2, uint minimum) public {
-        
+
+    function createProposition(string title, string description, string logic, uint enterDeadline,
+        uint resolutionTime, string option1, string option2, uint minimum) public {
+
         // pass in the creator when created
-        address propositionAddress = new Proposition(title, description, logic, enterDeadline, 
-        resolutionTime, option1, option2, minimum, msg.sender);
-        
+        address propositionAddress = new Proposition(title, description, logic, enterDeadline,
+            resolutionTime, option1, option2, minimum, msg.sender);
+
         deployedPropositions.push(propositionAddress);
     }
-    
+
     // view: no data modified
     function getDeployedPropositions() public view returns (address[]) {
         return deployedPropositions;
@@ -27,17 +27,14 @@ contract PropositionFactory {
 
 
 contract Proposition {
-    
-    struct Bet {
-        string title;
-        string description;
-        string logic;
-        uint enterDeadline;
-        uint resolutionTime;  // time to start to resolve
-        uint minimum;
-        uint initializationTime;
-    }
-    
+    string public pTitle;
+    string public pDescription;
+    string public pLogic;
+    uint public pEnterDeadline;
+    uint public pResolutionTime;  // time to start to resolve
+    uint public pMinimum;
+    uint public pInitializationTime;
+
     address public creator;
     string[] public options;
     address[] public players;
@@ -50,38 +47,36 @@ contract Proposition {
     uint public totalPool;
     uint finalOptionIndex;
     bool isEnd;
-    Bet public bet;
-    
+
     modifier restricted() {
         require(msg.sender == creator);
         _;
     }
-    
-    constructor(string title, string description, string logic, uint enterDeadline, 
-                uint resolutionTime, string option1, string option2, uint minimum, address initiator) public {
+
+    constructor(string title, string description, string logic, uint enterDeadline,
+        uint resolutionTime, string option1, string option2, uint minimum, address initiator) public {
         creator = initiator;
         options.push(option1);
         options.push(option2);
-        bet = Bet({
-            title: title,
-            description: description, 
-            logic: logic, 
-            enterDeadline: enterDeadline, 
-            resolutionTime: resolutionTime, 
-            minimum: minimum,
-            initializationTime: now
-        });
-        
+
+        pTitle = title;
+        pDescription = description;
+        pLogic = logic;
+        pEnterDeadline = enterDeadline;
+        pResolutionTime = resolutionTime;
+        pMinimum = minimum;
+        pInitializationTime = now;
+
         isEnd = false;
-        
+
     }
-    
+
     function enterBet(uint optionIndex) public payable {
         uint currentTime = now;
-        require(msg.value > bet.minimum);
-        require(currentTime < bet.enterDeadline);
+        require(msg.value > pMinimum);
+        require(currentTime < pEnterDeadline);
         require(optionIndex < options.length);
-        
+
         string storage option = options[optionIndex];
         // add player
         if (isplayerEntered[msg.sender]) {
@@ -93,7 +88,7 @@ contract Proposition {
             optionPlayers[option].push(msg.sender);
             players.push(msg.sender);
         }
-        
+
         // update player enter time
         playerEnterTime[msg.sender] = currentTime;
         // add to option pool
@@ -101,25 +96,25 @@ contract Proposition {
         // add to total pool
         totalPool += msg.value;
     }
-    
+
     function getPlayers() public view returns (address[]) {
         return players;
     }
-    
+
     // give index and return the option
     function getOptionPool(uint optionIndex) public view returns (uint) {
         string storage option = options[optionIndex];
         return optionPool[option];
     }
-    
+
     // settle the outcome of a bet
     function finalizeBet(uint optionIndex) public restricted {
-        require(now > bet.resolutionTime);  // start resolve after resolutionTime
-        
+        require(now > pResolutionTime);  // start resolve after resolutionTime
+
         isEnd = true;
         finalOptionIndex = optionIndex;
     }
-    
+
     function getOutcome() public view returns (string) {
         if (isEnd) {
             return options[finalOptionIndex];
@@ -127,22 +122,22 @@ contract Proposition {
             return "result not set by host yet!";
         }
     }
-    
+
     function distributePrice() public restricted {
         require(isEnd);
-        require(now > bet.resolutionTime);
-        
+        require(now > pResolutionTime);
+
         string storage option = options[finalOptionIndex];
         address[] storage winners = optionPlayers[option];
-        
+
         // distribute prize
         uint prize = totalPool/winners.length;
         for (uint i=0; i < winners.length; i++) {
-           winners[i].transfer(prize);
+            winners[i].transfer(prize);
         }
-        
+
         totalPool = 0;
     }
-    
+
 }
 
