@@ -44,7 +44,7 @@ contract Proposition {
     mapping(string => address[]) optionPlayers;
     mapping(address => uint) public playerAmount;
     // check if players entered already
-    mapping(address => bool) public isplayersEntered;
+    mapping(address => bool) public isplayerEntered;
     mapping(string => uint) optionPool;
     mapping(address => uint) public playerEnterTime;
     uint public totalPool;
@@ -84,11 +84,11 @@ contract Proposition {
         
         string storage option = options[optionIndex];
         // add player
-        if (isplayersEntered[msg.sender]) {
+        if (isplayerEntered[msg.sender]) {
             playerAmount[msg.sender] += msg.value;
         } else {
             playerAmount[msg.sender] = msg.value;
-            isplayersEntered[msg.sender] = true;
+            isplayerEntered[msg.sender] = true;
             // if first enter, then add into player list
             optionPlayers[option].push(msg.sender);
             players.push(msg.sender);
