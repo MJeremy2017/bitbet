@@ -55,6 +55,7 @@ mocha.describe('test proposition', () => {
                value: '200',
                gas: '3000000'});
 
+       // how map receive arguments
        const isEntered = await proposition.methods.isplayersEntered(accounts[1]).call();
        const totalPool = await proposition.methods.totalPool().call();
        const optionPool = await proposition.methods.getOptionPool(0).call();
